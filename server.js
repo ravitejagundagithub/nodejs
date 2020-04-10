@@ -10,6 +10,7 @@ var Team = require('./models/Team')
 var TeamDivisions = require('./models/TeamDivisions')
 var Score = require('./models/Score')
 var auth = require('./auth')
+var League = require('./models/League')
 
 mongoose.Promise = Promise
 
@@ -148,6 +149,52 @@ app.get('/getScores', async (req, res) => {
 
     } catch(error) {
         res.sendStatus(500)
+    }
+})
+
+app.post('/saveLeague', auth.checkAuthentication, (req, res) => {
+    console.log('save League')
+    console.log(req.body)
+    var league = new League(req.body)
+    console.log('league model created')
+    console.log(league)
+
+    League.findOneAndUpdate({'name': req.body.name}, req.body ,function(err, success) {
+        if(!success) {
+            console.log('adding League to mongo')
+            league.save((err, result) => {
+                if(err) {
+                    return res.status(500).send({message: 'saving League error'})
+                }
+                res.status(200).send({ message: 'create success' })
+            })
+        }
+        else {
+            console.log("existing league")
+            res.status(200).send({ message: 'update success' });
+        }
+    })
+})
+
+app.get('/getLeagues', async (req, res) => {
+    try {
+        var leagues = await League.find({})
+        console.log(leagues)
+        res.send(leagues)
+
+    } catch(error) {
+        res.sendStatus(500)
+    }
+})
+
+app.get('/deleteLeague/:id', async (req, res) => {
+    try {
+        console.log("delete request")
+        var league = await League.findByIdAndRemove(req.params.id)
+        console.log("deleted")
+        res.res.status(200).send({ message: 'delete success' });
+    } catch(error) {
+        res.res.status(500).send({ message: 'delete error' });
     }
 })
 
