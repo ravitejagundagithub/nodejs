@@ -157,4 +157,10 @@ mongoose.connect('mongodb://localhost:27017/psocial', (err) => {
 })
 
 app.use('/auth', auth.router)
-app.listen('8080')
+
+//app.listen('8080')
+
+const port = process.env.NODE_ENV === 'production' ? (process.env.PORT || 80) : 4000;
+const server = app.listen(port, function () {
+    console.log('Server listening on port ' + port);
+});
