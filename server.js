@@ -17,6 +17,7 @@ app.get('/', (req, res) => {
     res.send("hello world")
 })
 
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cors())
 app.use(bodyParser.json())
 
@@ -150,11 +151,13 @@ app.get('/getScores', async (req, res) => {
     }
 })
 
-mongoose.connect('mongodb://localhost:27017/psocial', (err) => {
-    if(!err) {
-        console.log('connected to mongo')
-    }
-})
+// mongoose.connect('mongodb://localhost:27017/psocial', (err) => {
+//     if(!err) {
+//         console.log('connected to mongo')
+//     }
+// })
+
+mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/leagueSiteBackend", { useCreateIndex: true, useNewUrlParser: true });
 
 app.use('/auth', auth.router)
 
