@@ -5,7 +5,8 @@ var userSchema = new mongoose.Schema({
     email: String,
     password: String,
     name: String,
-    description: String
+    description: String,
+    admin: Boolean
 })
 
 userSchema.pre('save', function(next) {

@@ -11,6 +11,7 @@ var TeamDivisions = require('./models/TeamDivisions')
 var Score = require('./models/Score')
 var auth = require('./auth')
 var League = require('./models/League')
+var Organization = require('./models/Organization')
 
 mongoose.Promise = Promise
 
@@ -28,7 +29,7 @@ app.get('/', (req, res) => {
 
 app.get('/posts/:id', async (req, res) => {
     var author = req.params.id
-    var posts = await Post.find({author})
+    var posts = await Post.find({ author })
     res.send(posts)
 })
 
@@ -37,8 +38,8 @@ app.post('/post', auth.checkAuthentication, (req, res) => {
     postData.author = req.userId
     var post = new Post(postData)
     post.save((err, result) => {
-        if(err) {
-            return res.status(500).send({message: 'saving post error'})
+        if (err) {
+            return res.status(500).send({ message: 'saving post error' })
         }
         res.sendStatus(200);
     })
@@ -49,8 +50,20 @@ app.get('/users', async (req, res) => {
         var users = await User.find({}, '-password -__v')
         res.send(users)
 
-    } catch(error) {
+    } catch (error) {
         res.sendStatus(500)
+    }
+})
+
+app.get('/deleteUser/:id', async (req, res) => {
+    try {
+        console.log("delete request")
+        console.log()
+        var user = User.findByIdAndRemove(req.params.id)
+        console.log("deleted")
+        res.status(200).send({ message: 'delete success' });
+    } catch (error) {
+        res.status(500).send({ message: 'delete error' });
     }
 })
 
@@ -58,25 +71,26 @@ app.get('/profile/:id', async (req, res) => {
     try {
         var user = await User.findById(req.params.id, '-password -__v')
         res.send(user)
-    } catch(error) {
+    } catch (error) {
         res.sendStatus(500)
     }
 })
 
 app.post('/registerTeam', auth.checkAuthentication, (req, res) => {
+    console.log(req)
     var teamData = req.body
     teamData.author = req.userId
     console.log(teamData)
     var team = new Team(teamData)
     console.log(team)
-    Team.findOneAndUpdate({'name': teamData.name}, teamData ,function(err, success) {
-        if(!success) {
+    Team.findOneAndUpdate({ 'name': teamData.name }, teamData, function (err, success) {
+        if (!success) {
             console.log('adding team to mongo')
             team.save((err, result) => {
-                if(err) {
-                    return res.status(500).send({message: 'saving team error'})
+                if (err) {
+                    return res.status(500).send({ message: 'saving team error' })
                 }
-                res.sendStatus(200);
+                res.status(200).send({ message: 'team register success' })
             })
         }
     })
@@ -88,7 +102,17 @@ app.get('/teamNames', async (req, res) => {
         var teams = await Team.find({}, 'name')
         res.send(teams)
 
-    } catch(error) {
+    } catch (error) {
+        res.sendStatus(500)
+    }
+})
+
+app.get('/teams', async (req, res) => {
+    try {
+        var teams = await Team.find({})
+        res.send(teams)
+
+    } catch (error) {
         res.sendStatus(500)
     }
 })
@@ -101,12 +125,12 @@ app.post('/registerDivisions', auth.checkAuthentication, (req, res) => {
     console.log('model created')
     console.log(divisions)
 
-    TeamDivisions.findOneAndUpdate({'leagueName': teamDivisions.leagueName}, teamDivisions ,function(err, success) {
-        if(!success) {
+    TeamDivisions.findOneAndUpdate({ 'leagueName': teamDivisions.leagueName }, teamDivisions, function (err, success) {
+        if (!success) {
             console.log('adding team divisions info to mongo')
             divisions.save((err, result) => {
-                if(err) {
-                    return res.status(500).send({message: 'saving team divisions info error'})
+                if (err) {
+                    return res.status(500).send({ message: 'saving team divisions info error' })
                 }
                 res.sendStatus(200);
             })
@@ -119,7 +143,7 @@ app.get('/leagueDivisions', async (req, res) => {
         var divisions = await TeamDivisions.findOne({}, 'divisions')
         res.send(divisions)
 
-    } catch(error) {
+    } catch (error) {
         res.sendStatus(500)
     }
 })
@@ -132,9 +156,9 @@ app.post('/saveScore', auth.checkAuthentication, (req, res) => {
     console.log(score)
 
     score.save((err, result) => {
-        if(err) {
+        if (err) {
             console.log('error')
-            return res.status(500).send({message: 'saving score error'})
+            return res.status(500).send({ message: 'saving score error' })
         }
         console.log('success')
         res.sendStatus(200);
@@ -147,7 +171,7 @@ app.get('/getScores', async (req, res) => {
         console.log(scores)
         res.send(scores)
 
-    } catch(error) {
+    } catch (error) {
         res.sendStatus(500)
     }
 })
@@ -159,12 +183,12 @@ app.post('/saveLeague', auth.checkAuthentication, (req, res) => {
     console.log('league model created')
     console.log(league)
 
-    League.findOneAndUpdate({'name': req.body.name}, req.body ,function(err, success) {
-        if(!success) {
+    League.findOneAndUpdate({ 'name': req.body.name }, req.body, function (err, success) {
+        if (!success) {
             console.log('adding League to mongo')
             league.save((err, result) => {
-                if(err) {
-                    return res.status(500).send({message: 'saving League error'})
+                if (err) {
+                    return res.status(500).send({ message: 'saving League error' })
                 }
                 res.status(200).send({ message: 'create success' })
             })
@@ -182,7 +206,7 @@ app.get('/getLeagues', async (req, res) => {
         console.log(leagues)
         res.send(leagues)
 
-    } catch(error) {
+    } catch (error) {
         res.sendStatus(500)
     }
 })
@@ -192,9 +216,72 @@ app.get('/deleteLeague/:id', async (req, res) => {
         console.log("delete request")
         var league = await League.findByIdAndRemove(req.params.id)
         console.log("deleted")
-        res.res.status(200).send({ message: 'delete success' });
-    } catch(error) {
-        res.res.status(500).send({ message: 'delete error' });
+        res.status(200).send({ message: 'delete success' });
+    } catch (error) {
+        res.status(500).send({ message: 'delete error' });
+    }
+})
+
+app.post('/organizations', auth.checkAuthentication, (req, res) => {
+    console.log('save Org')
+    console.log(req.body)
+    var organization = new Organization(req.body)
+    console.log('Org model created')
+    console.log(organization)
+
+    Organization.findOneAndUpdate({ 'name': req.body.name }, req.body, function (err, success) {
+        if (!success) {
+            console.log('adding organization to mongo')
+            organization.save((err, result) => {
+                if (err) {
+                    return res.status(500).send({ message: 'saving organization error' })
+                }
+                res.status(200).send({ message: 'create success' })
+            })
+        }
+        else {
+            console.log("existing organization")
+            res.status(200).send({ message: 'update success' });
+        }
+    })
+})
+
+app.get('/organizations', async (req, res) => {
+    try {
+        console.log("hello")
+        console.log(req.body)
+        var organizations = await Organization.find({})
+        console.log(organizations)
+        res.send(organizations)
+
+    } catch (error) {
+        res.sendStatus(500)
+    }
+})
+
+app.get('/organizations/user/:id', async (req, res) => {
+    try {
+        console.log("hello")
+        console.log(req.params.id)
+        var organizations = await Organization.find({ user_id: req.params.id})
+        console.log(organizations)
+        res.send(organizations)
+
+    } catch (error) {
+        res.sendStatus(500)
+    }
+})
+
+app.get('/organizations/:id', async (req, res) => {
+    try {
+        console.log("org retrieve by Id")
+        console.log(req.params.id)
+        var organization = await Organization.findById(req.params.id)
+        console.log("retrieve by Id")
+        //console.log(organization)
+        res.status(200).send(organization);
+    } catch (error) {
+        res.status(500).send({ message: 'retrieve by Id error' });
     }
 })
 

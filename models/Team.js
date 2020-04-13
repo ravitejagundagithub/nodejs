@@ -4,5 +4,6 @@ module.exports = mongoose.model('Team', {
     name: String,
     phone: String,
     players: [],
-    author: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+    user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    league_id: { type: mongoose.Schema.Types.ObjectId, ref: 'League' }
 })

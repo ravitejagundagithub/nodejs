@@ -1,8 +1,8 @@
 var mongoose = require('mongoose')
 
-var division = new mongoose.Schema({ 
-        name: String,
-        _id: String
+var division = new mongoose.Schema({
+    name: String,
+    _id: String
 })
 
 module.exports = mongoose.model('TeamDivisions', {
