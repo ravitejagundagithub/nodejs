@@ -175,8 +175,8 @@ app.get('/getScores', async (req, res) => {
         res.sendStatus(500)
     }
 })
-
-app.post('/saveLeague', auth.checkAuthentication, (req, res) => {
+//app.post('/saveLeague', auth.checkAuthentication, (req, res) => {
+app.post('/saveLeague', (req, res) => {
     console.log('save League')
     console.log(req.body)
     var league = new League(req.body)
@@ -211,6 +211,18 @@ app.get('/getLeagues', async (req, res) => {
     }
 })
 
+app.get('/leagues/:id', async (req, res) => {
+    try {
+        console.log("league retrieve by Id")
+        console.log(req.params.id)
+        var league = await League.findById(req.params.id)
+        console.log("retrieve by league Id")
+        res.status(200).send(league);
+    } catch (error) {
+        res.status(500).send({ message: 'retrieve league by Id error' });
+    }
+})
+
 app.get('/deleteLeague/:id', async (req, res) => {
     try {
         console.log("delete request")
@@ -222,7 +234,7 @@ app.get('/deleteLeague/:id', async (req, res) => {
     }
 })
 
-app.post('/organizations', auth.checkAuthentication, (req, res) => {
+app.post('/organizations', (req, res) => {
     console.log('save Org')
     console.log(req.body)
     var organization = new Organization(req.body)
