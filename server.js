@@ -76,7 +76,7 @@ app.get('/profile/:id', async (req, res) => {
     }
 })
 
-app.post('/registerTeam', auth.checkAuthentication, (req, res) => {
+app.post('/registerTeam', (req, res) => {
     console.log(req)
     var teamData = req.body
     teamData.author = req.userId
